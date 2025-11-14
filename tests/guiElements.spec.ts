@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { assert } from "console";
 import { beforeEach } from "node:test";
 
 test.beforeEach(async ({ page }) => {
@@ -110,7 +111,7 @@ test.describe("Form Layouts page - GUI Elements", async () => {
     }
   });
 
-  test("lists and dropdowns", async ({ page }) => {
+  test("lists and dropdowns - Country", async ({ page }) => {
     const dropdownMenu = page.locator("select[id='country']");
     await dropdownMenu.click();
 
@@ -148,5 +149,74 @@ test.describe("Form Layouts page - GUI Elements", async () => {
         await dropdownMenu.click();
       }
     }
+  });
+
+  test("Colors list", async ({ page }) => {
+    const colorList = page.locator(".form-group").getByLabel("Colors:");
+    await expect(colorList.locator("option")).toHaveCount(7);
+
+    await colorList.selectOption({ label: "White" });
+    await expect(colorList).toHaveValue("white");
+  });
+
+  test("Sorted list", async ({ page }) => {
+    const animalsList = page.locator(".form-group").getByLabel("Sorted List:");
+    await expect(animalsList.locator("option")).toHaveCount(10);
+
+    await animalsList.selectOption({ label: "Fox" });
+    await expect(animalsList).toHaveValue("fox");
+  });
+
+  test("select date in Date Picker 1", async ({ page }) => {
+    const datePicker1Field = page.locator("#datepicker");
+    await datePicker1Field.click();
+
+    const datePickerContainer = page.locator("#ui-datepicker-div");
+    await expect(datePickerContainer).toHaveCSS("display", "block");
+
+    await datePickerContainer.getByText("17", { exact: true }).click();
+
+    await datePicker1Field.click();
+
+    const todayDateLocator = page.locator(
+      "td.ui-datepicker-today a.ui-state-highlight"
+    );
+
+    await expect(todayDateLocator).toHaveCSS(
+      "background-color",
+      "rgb(255, 250, 144)"
+    );
+
+    const selectedDateLocator = page.locator(
+      "td.ui-datepicker-current-day a.ui-state-active",
+      { hasText: "17" }
+    );
+    await expect(selectedDateLocator).toBeVisible;
+
+    await expect(selectedDateLocator).toHaveCSS(
+      "background-color",
+      "rgb(0, 127, 255)"
+    );
+
+    await selectedDateLocator.click();
+
+    const selectDate = await datePicker1Field.inputValue();
+    expect(selectDate).toContain("11/17/2025");
+
+    expect(
+      page.locator(".ui-datepicker-title span.ui-datepicker-month")
+    ).toHaveText("November");
+
+    await datePicker1Field.click();
+
+    const datepickerNextArrow = page.locator(
+      "div.ui-datepicker-header a.ui-datepicker-next"
+    );
+    await datepickerNextArrow.click();
+
+    await datePicker1Field.click();
+    expect(
+      page.locator(".ui-datepicker-title span.ui-datepicker-month")
+    ).toHaveText("December");
   });
 });
