@@ -195,7 +195,7 @@ test.describe("Form Layouts page - GUI Elements", async () => {
 
     await expect(selectedDateLocator).toHaveCSS(
       "background-color",
-      "rgb(0, 127, 255)"
+      "rgb(255, 250, 144)"
     );
 
     await selectedDateLocator.click();
@@ -218,5 +218,37 @@ test.describe("Form Layouts page - GUI Elements", async () => {
     expect(
       page.locator(".ui-datepicker-title span.ui-datepicker-month")
     ).toHaveText("December");
+  });
+
+  test("select date in date picker date2", async ({ page }) => {
+    const datePicker2Field = page.locator("#txtDate");
+
+    await datePicker2Field.click();
+    expect(page.locator("#ui-datepicker-div")).toBeVisible();
+
+    await page
+      .locator("#ui-datepicker-div table tbody tr td a[data-date='27']")
+      .click();
+    expect(
+      page.locator("#ui-datepicker-div table tbody tr td a[data-date='27']")
+    ).toHaveCSS("background-color", "rgb(0, 127, 255)");
+
+    await datePicker2Field.click();
+    await page.locator(".ui-datepicker-next").click();
+    expect(
+      page.locator('.ui-datepicker-title select option[value="11"]')
+    ).toHaveAttribute("selected");
+
+    await page
+      .locator("#ui-datepicker-div table tbody tr td a[data-date='24']")
+      .click();
+    await page.locator("#txtDate");
+
+    await datePicker2Field.click();
+    expect(
+      page.locator(
+        "#ui-datepicker-div table tbody tr td[data-month='11'] a[data-date='24']"
+      )
+    ).toHaveClass("ui-state-default ui-state-active");
   });
 });
